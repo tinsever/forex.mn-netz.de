@@ -1,0 +1,39 @@
+# Logs
+php_errors.log
+*.log
+
+# Archives
+*.zip
+*.tar.gz
+
+# Local configuration overrides
+config/local.php
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# Node modules (if using build tools)
+node_modules/
+
+# Composer (if using)
+vendor/
+composer.lock
