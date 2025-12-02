@@ -1,0 +1,43 @@
+<?php
+/**
+ * Application Configuration
+ * 
+ * Copy this file to app.php and adjust the values.
+ */
+
+return [
+    // API Configuration
+    'api' => [
+        'base_url' => getenv('API_BASE') ?: 'https://your-api-domain.com/api',
+        'timeout' => 15,
+        'user_agent' => 'mnFOREX/1.0',
+    ],
+
+    // Default Currencies
+    'defaults' => [
+        'base_currency' => 'VYR',
+        'target_currency' => 'USD',
+        'chart_from' => 'VYR',
+        'chart_to' => 'USD',
+        'rates_base' => 'IRE',
+    ],
+
+    // UI Settings
+    'ui' => [
+        'site_name' => 'mnFOREX',
+        'date_format' => 'd.m.Y',
+        'number_decimals' => 4,
+        'chart_default_range' => '1Y',
+    ],
+
+    // Error Messages
+    'errors' => [
+        'network' => 'Network error: Failed to connect to server.',
+        'api' => 'API error: Request could not be processed.',
+        'json' => 'Data error: Invalid response from server.',
+        'currency_not_found' => 'Currency not found.',
+        'invalid_amount' => 'Invalid amount entered.',
+        'general' => 'An unexpected error occurred.',
+    ],
+];
+

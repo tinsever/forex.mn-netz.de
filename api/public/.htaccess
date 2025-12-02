@@ -1,0 +1,31 @@
+# mnFOREX - Apache Configuration
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Set base path (adjust if API is in subdirectory)
+# RewriteBase /api/public/
+
+# Allow direct access to existing files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Route all other requests to index.php
+RewriteRule ^ index.php [QSA,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Disable access to .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+

@@ -1,22 +1,45 @@
+# ===== API =====
+# Configuration (contains DB credentials)
+/api/config/app.php
+
+# Dependencies
+/api/vendor/
+
+# Rate limit storage
+/api/storage/rate_limits/
+
+# ===== Website =====
+# Configuration (may contain API URLs)
+/website/config/app.php
+
+# Local config overrides
+/website/config/local.php
+
+# ===== Shared =====
+
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
 # Logs
-php_errors.log
 *.log
+/logs/
+php_errors.log
 
-# Archives
-*.zip
-*.tar.gz
-
-# Local configuration overrides
-config/local.php
-
-# IDE files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS files
+# OS
 .DS_Store
 .DS_Store?
 ._*
@@ -31,9 +54,6 @@ Desktop.ini
 *.temp
 *.cache
 
-# Node modules (if using build tools)
-node_modules/
-
-# Composer (if using)
-vendor/
-composer.lock
+# Archives
+*.zip
+*.tar.gz

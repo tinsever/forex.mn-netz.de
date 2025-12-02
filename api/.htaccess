@@ -1,0 +1,11 @@
+# Alle Domains erlauben
+Header set Access-Control-Allow-Origin "*"
+
+# Nur bestimmte Domain erlauben
+# Header set Access-Control-Allow-Origin "https://deine-domain.de"
+
+# Methoden erlauben (optional)
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+
+# Header erlauben (optional)
+Header set Access-Control-Allow-Headers "Content-Type"

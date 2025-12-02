@@ -1,0 +1,44 @@
+<?php
+/**
+ * API Configuration
+ * 
+ * Copy this file to app.php and fill in your actual values.
+ */
+
+return [
+    // Database Configuration
+    'database' => [
+        'host' => 'localhost',
+        'name' => 'your_database_name',
+        'user' => 'your_database_user',
+        'pass' => 'your_database_password',
+        'charset' => 'utf8mb4',
+    ],
+
+    // CORS Configuration
+    'cors' => [
+        'allowed_origins' => ['*'], // Use specific domains in production: ['https://example.com']
+        'allowed_methods' => ['GET', 'OPTIONS'],
+        'allowed_headers' => ['Content-Type', 'Authorization'],
+        'max_age' => 86400, // 24 hours
+    ],
+
+    // Rate Limiting
+    'rate_limit' => [
+        'enabled' => true,
+        'requests_per_minute' => 60,
+        'storage_path' => __DIR__ . '/../storage/rate_limits',
+    ],
+
+    // API Settings
+    'api' => [
+        'debug' => false, // Set to true for detailed error messages
+        'timeout' => 15,  // External API timeout in seconds
+    ],
+
+    // Frankfurter API (for real currency rates)
+    'frankfurter' => [
+        'base_url' => 'https://api.frankfurter.app',
+    ],
+];
+
