@@ -36,10 +36,29 @@ class CurrencyConverter
      */
     private function getCurrencyInfo(string $code): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT code, exchange_rate, real_currency FROM currencies WHERE code = ?');
+        $stmt = $this->pdo->prepare('SELECT code, exchange_rate, real_currency, exchange_direction FROM currencies WHERE code = ?');
         $stmt->execute([strtoupper($code)]);
         $currency = $stmt->fetch(PDO::FETCH_ASSOC);
         return $currency ?: null;
+    }
+
+    /**
+     * Calculates the base rate (value of 1 custom unit in its real currency).
+     *
+     * @param array $info Currency info from the database.
+     * @return float The base rate.
+     */
+    private function getBaseRate(array $info): float
+    {
+        $rate = (float) $info['exchange_rate'];
+        $direction = $info['exchange_direction'] ?? 'real_to_custom';
+
+        if ($direction === 'custom_to_real') {
+            return $rate;
+        }
+
+        // Default: real_to_custom (1 real = X custom => 1 custom = 1/X real)
+        return $rate != 0 ? 1.0 / $rate : 0.0;
     }
 
     /**
@@ -94,15 +113,22 @@ class CurrencyConverter
             return $amount;
         }
 
+        $fromBaseRate = $this->getBaseRate($fromInfo);
+        $toBaseRate = $this->getBaseRate($toInfo);
+
+        if ($toBaseRate == 0) {
+            throw new Exception("Exchange rate for target currency {$toCurrency} results in zero value.", 400);
+        }
+
         $rate = 1.0;
 
         if ($fromInfo['real_currency'] === $toInfo['real_currency']) {
             // Conversion within the same real currency group
-            $rate = $toInfo['exchange_rate'] / $fromInfo['exchange_rate'];
+            $rate = $fromBaseRate / $toBaseRate;
         } else {
             // Conversion via Frankfurter API for different real currencies
             $forexRate = $this->getForexRate($fromInfo['real_currency'], $toInfo['real_currency']);
-            $rate = ($toInfo['exchange_rate'] / $fromInfo['exchange_rate']) * $forexRate;
+            $rate = ($fromBaseRate / $toBaseRate) * $forexRate;
         }
 
         return round($amount * $rate, 5);
@@ -172,12 +198,16 @@ class CurrencyConverter
             return $this->generateConstantRates($startDate, $endDate, 1.0);
         }
 
+        $fromBaseRate = $this->getBaseRate($fromInfo);
+        $toBaseRate = $this->getBaseRate($toInfo);
+
+        if ($toBaseRate == 0) {
+            throw new Exception("Exchange rate for target currency {$toCurrency} results in zero value.", 400);
+        }
+
         // Case 2: Different virtual currencies but same real base currency
         if ($fromInfo['real_currency'] === $toInfo['real_currency']) {
-            if ($fromInfo['exchange_rate'] == 0) {
-                throw new Exception("Exchange rate for source currency {$fromCurrency} is zero.", 400);
-            }
-            $constantRate = $toInfo['exchange_rate'] / $fromInfo['exchange_rate'];
+            $constantRate = $fromBaseRate / $toBaseRate;
             return $this->generateConstantRates($startDate, $endDate, round($constantRate, 4));
         }
 
@@ -189,14 +219,10 @@ class CurrencyConverter
             $endDate
         );
 
-        if ($fromInfo['exchange_rate'] == 0) {
-            throw new Exception("Exchange rate for source currency {$fromCurrency} is zero.", 400);
-        }
-
         $adjustedRates = [];
         foreach ($historicalForexRates as $entry) {
             $forexRate = $entry['rate'];
-            $calculatedRate = ($toInfo['exchange_rate'] / $fromInfo['exchange_rate']) * $forexRate;
+            $calculatedRate = ($fromBaseRate / $toBaseRate) * $forexRate;
             $adjustedRates[] = ['date' => $entry['date'], 'rate' => round($calculatedRate, 4)];
         }
 
@@ -313,6 +339,7 @@ class CurrencyConverter
                 country,
                 subdivision as breakdown,
                 exchange_rate,
+                exchange_direction,
                 real_currency as forex
             FROM currencies
             ORDER BY name
