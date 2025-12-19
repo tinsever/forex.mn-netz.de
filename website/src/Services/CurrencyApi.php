@@ -189,10 +189,11 @@ class CurrencyApi
 
         // Check for API-level errors
         if (isset($data['error'])) {
-            throw new Exception($data['error']);
+            $message = $data['error']['message'] ?? $data['error'];
+            throw new Exception($message);
         }
 
-        return $data;
+        return $data['data'] ?? $data;
     }
 
     /**

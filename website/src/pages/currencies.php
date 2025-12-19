@@ -48,7 +48,12 @@ try {
                         </tr>
                     <?php elseif ($currencies && is_array($currencies)): ?>
                         <?php foreach ($currencies as $currency): ?>
-                            <?php $formattedRate = number_format($currency['exchange_rate'], 4, ',', '.'); ?>
+                            <?php 
+                                $rate = (float) $currency['exchange_rate'];
+                                $direction = $currency['exchange_direction'] ?? 'real_to_custom';
+                                $displayRate = ($direction === 'custom_to_real') ? $rate : ($rate != 0 ? 1 / $rate : 0);
+                                $formattedRate = number_format($displayRate, 4, ',', '.'); 
+                            ?>
                             <tr class="border-b border-border hover:bg-background-alt transition-colors">
                                 <td class="p-4">
                                     <div class="flex items-center gap-2">
@@ -129,7 +134,9 @@ function showCurrencyModal(currency) {
     const modal = document.getElementById('currencyModal');
     const content = document.getElementById('modalContent');
     
-    const rate = parseFloat(currency.exchange_rate) || 0;
+    const baseRate = parseFloat(currency.exchange_rate) || 0;
+    const direction = currency.exchange_direction || 'real_to_custom';
+    const rate = direction === 'custom_to_real' ? baseRate : (baseRate !== 0 ? 1 / baseRate : 0);
     
     content.innerHTML = `
         <div class="space-y-4">

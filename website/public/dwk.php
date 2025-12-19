@@ -25,7 +25,10 @@ function calculateCurrencyIndex(CurrencyApi $api, string $baseCurrencyCode): arr
     // Find base currency rate
     foreach ($currencies as $currency) {
         if ($currency['short'] === $baseCurrencyCode) {
-            $baseRate = $currency['exchange_rate'];
+            $rate = (float) $currency['exchange_rate'];
+            $direction = $currency['exchange_direction'] ?? 'real_to_custom';
+            $baseRate = ($direction === 'custom_to_real') ? $rate : ($rate != 0 ? 1 / $rate : 0);
+            
             $baseCurrencyInfo = $currency;
             $index[$currency['short']] = 100.00;
             break;
@@ -50,7 +53,12 @@ function calculateCurrencyIndex(CurrencyApi $api, string $baseCurrencyCode): arr
             if ($currency['forex'] !== $baseForex) {
                 $warnings[] = "'{$currency['short']}' nutzt andere Basis ({$currency['forex']}) als '$baseCurrencyCode' ($baseForex)";
             }
-            $index[$currency['short']] = round(($currency['exchange_rate'] / $baseRate) * 100, 2);
+            
+            $rate = (float) $currency['exchange_rate'];
+            $direction = $currency['exchange_direction'] ?? 'real_to_custom';
+            $normalizedRate = ($direction === 'custom_to_real') ? $rate : ($rate != 0 ? 1 / $rate : 0);
+            
+            $index[$currency['short']] = round(($normalizedRate / $baseRate) * 100, 2);
         }
     }
 

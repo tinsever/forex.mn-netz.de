@@ -60,9 +60,10 @@ const CurrencyAPI = {
             }
             const data = await response.json();
             if (data.error) {
-                throw new Error(data.error);
+                const message = data.error.message || data.error;
+                throw new Error(message);
             }
-            return data;
+            return data.data !== undefined ? data.data : data;
         } catch (error) {
             console.error(`API Error (${action}):`, error);
             throw error;
